@@ -1,4 +1,4 @@
 image:
-  repository: n8n-custom
-  tag: "2.19.5"
-  pullPolicy: Never
+  repository: dimple9771/n8n-custom
+  tag: "f5776c4876134cf9f0438124de7a59c91441fe2b"
+  pullPolicy: Always
