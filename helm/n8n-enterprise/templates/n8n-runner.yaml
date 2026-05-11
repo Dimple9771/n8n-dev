@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: n8n-runner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: n8n-runner
+  template:
+    metadata:
+      labels:
+        app: n8n-runner
+    spec:
+      containers:
+        - name: n8n-runner
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+          envFrom:
+            - configMapRef:
+                name: n8n-config
+            - secretRef:
+                name: n8n-secret

@@ -1,0 +1,4 @@
+image:
+  repository: n8n-custom
+  tag: "2.19.5"
+  pullPolicy: Never

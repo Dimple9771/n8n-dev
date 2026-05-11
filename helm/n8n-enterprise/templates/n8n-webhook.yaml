@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: n8n-webhook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: n8n-webhook
+  template:
+    metadata:
+      labels:
+        app: n8n-webhook
+    spec:
+      containers:
+        - name: n8n-webhook
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+          command: ["n8n"]
+          args: ["webhook"]
+          ports:
+            - containerPort: 5678
+          envFrom:
+            - configMapRef:
+                name: n8n-config
+            - secretRef:
+                name: n8n-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: n8n-webhook
+spec:
+  selector:
+    app: n8n-webhook
+  ports:
+    - port: 5678
+      targetPort: 5678
