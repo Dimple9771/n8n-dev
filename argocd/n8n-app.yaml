@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: n8n-enterprise
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/Dimple9771/n8n-dev.git
+    targetRevision: main
+    path: helm/n8n-enterprise
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: n8n-dev
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
