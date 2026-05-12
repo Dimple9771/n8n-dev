@@ -1,0 +1,47 @@
+name: n8n CI with Argo CD
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build-push-update-git:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/n8n-custom:${{ github.sha }} -f app/Dockerfile app
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/n8n-custom:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/n8n-custom:latest
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/n8n-custom:${{ github.sha }}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/n8n-custom:latest
+
+      - name: Update Helm image tag
+        run: |
+          sed -i "s|repository: .*|repository: ${{ secrets.DOCKERHUB_USERNAME }}/n8n-custom|" helm/n8n-enterprise/values.yaml
+          sed -i "s|tag: .*|tag: \"${{ github.sha }}\"|" helm/n8n-enterprise/values.yaml
+          sed -i "s|pullPolicy: .*|pullPolicy: Always|" helm/n8n-enterprise/values.yaml
+
+      - name: Commit updated Helm values
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add helm/n8n-enterprise/values.yaml
+          git commit -m "Update n8n image tag to ${{ github.sha }}" || echo "No changes to commit"
+          git push
