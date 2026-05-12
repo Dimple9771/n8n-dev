@@ -1,4 +1,4 @@
-name: n8n CI with Argo CD
+name: n8n CI 
 
 on:
   push:
