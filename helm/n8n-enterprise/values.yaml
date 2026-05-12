@@ -1,4 +1,4 @@
 image:
   repository: dimple9771/n8n-custom
-  tag: "f5776c4876134cf9f0438124de7a59c91441fe2b"
+  tag: "44775b82d7d266b7d16735f886d089325aca24a2"
   pullPolicy: Always
