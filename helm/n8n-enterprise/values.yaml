@@ -1,7 +1,7 @@
 image:
   repository: dimple9771/n8n-custom
-  tag: latest
-  pullPolicy: IfNotPresent
+  tag: "1b58341175a470a5f1e9cdc3b44f8053f1f175e3"
+  pullPolicy: Always
 
 namespace: n8n-dev
 host: n8n.dimple.com
