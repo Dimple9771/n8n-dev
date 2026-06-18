@@ -1,11 +1,17 @@
+{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: n8n-ingress
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
 spec:
+  ingressClassName: {{ .Values.ingress.className | quote }}
   rules:
-    - host: n8n.local
-      http:
+    - http:
         paths:
           - path: /webhook
             pathType: Prefix
@@ -13,11 +19,12 @@ spec:
               service:
                 name: n8n-webhook
                 port:
-                  number: 5678
+                  number: 80
           - path: /
             pathType: Prefix
             backend:
               service:
                 name: n8n-main
                 port:
-                  number: 5678
+                  number: 80
+{{- end }}

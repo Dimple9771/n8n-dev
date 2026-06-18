@@ -1,4 +1,21 @@
 image:
   repository: dimple9771/n8n-custom
-  tag: "4c1926c879a5aabffaa233de148826de02f64dff"
-  pullPolicy: Always
+  tag: latest
+  pullPolicy: IfNotPresent
+
+namespace: n8n-dev
+host: n8n.dimple.com
+webhookURL: http://n8n.dimple.com/
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+secret:
+  N8N_ENCRYPTION_KEY: g7PL+gt7h0Mt9obklRK/E1Tvx1yB/9fFjucPf2hJjR8=
+  DB_POSTGRESDB_PASSWORD: dimple9771
+  POSTGRES_PASSWORD: dimple9771  
+  N8N_RUNNERS_AUTH_TOKEN: SecureRunnerToken123!SecureRunnerToken456!
+

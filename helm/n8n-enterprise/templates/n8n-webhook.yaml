@@ -2,8 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: n8n-webhook
+  namespace: {{ .Release.Namespace }}
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: n8n-webhook
@@ -16,23 +17,27 @@ spec:
         - name: n8n-webhook
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: "{{ .Values.image.pullPolicy }}"
-          command: ["n8n"]
-          args: ["webhook"]
           ports:
             - containerPort: 5678
           envFrom:
             - configMapRef:
                 name: n8n-config
-            - secretRef:
-                name: n8n-secret
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: n8n-webhook
-spec:
-  selector:
-    app: n8n-webhook
-  ports:
-    - port: 5678
-      targetPort: 5678
+          env:
+            - name: N8N_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: n8n-secret
+                  key: N8N_ENCRYPTION_KEY
+            - name: DB_POSTGRESDB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: n8n-secret
+                  key: DB_POSTGRESDB_PASSWORD
+            - name: N8N_RUNNERS_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: n8n-secret
+                  key: N8N_RUNNERS_AUTH_TOKEN
+          command:
+            - n8n
+            - webhook

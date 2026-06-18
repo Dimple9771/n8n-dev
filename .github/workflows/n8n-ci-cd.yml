@@ -1,9 +1,13 @@
-name: n8n CI 
+name: n8n CI/CD
 
 on:
   push:
     branches:
       - main
+    paths:
+      - "app/**"
+      - "helm/**"
+      - ".github/workflows/**"
 
 permissions:
   contents: write

@@ -2,83 +2,44 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: n8n-main
-
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
-
   selector:
     matchLabels:
       app: n8n-main
-
   template:
     metadata:
       labels:
         app: n8n-main
-
     spec:
       containers:
         - name: n8n-main
-
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-
           imagePullPolicy: "{{ .Values.image.pullPolicy }}"
-
           ports:
             - containerPort: 5678
-
           envFrom:
             - configMapRef:
                 name: n8n-config
-
-            - secretRef:
-                name: n8n-secret
-
-          volumeMounts:
-            - name: n8n-storage
-              mountPath: /home/node/.n8n
-
-          resources:
-            requests:
-              cpu: "500m"
-              memory: "512Mi"
-
-            limits:
-              cpu: "1"
-              memory: "1Gi"
-
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 5678
-
-            initialDelaySeconds: 60
-            periodSeconds: 10
-
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: 5678
-
-            initialDelaySeconds: 30
-            periodSeconds: 5
-
-      volumes:
-        - name: n8n-storage
-
-          persistentVolumeClaim:
-            claimName: n8n-pvc
-
----
-apiVersion: v1
-kind: Service
-
-metadata:
-  name: n8n-main
-
-spec:
-  selector:
-    app: n8n-main
-
-  ports:
-    - port: 5678
-      targetPort: 5678
+          env:
+            - name: N8N_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: n8n-secret
+                  key: N8N_ENCRYPTION_KEY
+            - name: DB_POSTGRESDB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: n8n-secret
+                  key: DB_POSTGRESDB_PASSWORD
+            - name: N8N_RUNNERS_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: n8n-secret
+                  key: N8N_RUNNERS_AUTH_TOKEN
+            - name: N8N_DISABLE_PRODUCTION_MAIN_PROCESS
+              value: "false"
+          command:
+            - n8n
+            - start
